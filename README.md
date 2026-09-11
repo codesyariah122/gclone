@@ -2,6 +2,8 @@
 
 Lightweight GitHub private repository clone CLI for macOS.
 
+> **PyPI package:** [`codesyariah-gclone`](https://pypi.org/project/codesyariah-gclone/). The command remains `gclone`.
+
 `gclone` is a simple command-line tool built with Python that makes cloning private GitHub repositories easier without manually putting a Personal Access Token (PAT) into the Git URL.
 
 ## Features
@@ -25,6 +27,20 @@ Lightweight GitHub private repository clone CLI for macOS.
 * GitHub Personal Access Token (PAT)
 
 ## Installation
+
+### From PyPI
+
+```bash
+python3 -m pip install --user --upgrade codesyariah-gclone
+```
+
+Verify the installation:
+
+```bash
+gclone help
+```
+
+### From source
 
 Clone this repository:
 
@@ -232,6 +248,7 @@ gclone clone owner/repository
 gclone clone owner/repository --dir ~/Projects
 gclone auth
 gclone auth --status
+gclone auth --verify
 gclone logout
 gclone help
 ```
@@ -241,6 +258,8 @@ gclone help
 ```text
 gclone/
 ├── gclone.py
+├── pyproject.toml
+├── LICENSE
 ├── install.sh
 └── README.md
 ```

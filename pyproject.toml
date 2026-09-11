@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesyariah-gclone"
+version = "0.1.0"
+description = "A lightweight macOS CLI for cloning private GitHub repositories securely."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "CodeSyariah", email = "codesyariah122@gmail.com" },
+]
+keywords = ["github", "git", "clone", "cli", "macos", "keychain"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Version Control :: Git",
+]
+
+[project.urls]
+Homepage = "https://github.com/codesyariah122/gclone"
+Repository = "https://github.com/codesyariah122/gclone"
+Issues = "https://github.com/codesyariah122/gclone/issues"
+
+[project.scripts]
+gclone = "gclone:main"
+
+[tool.setuptools]
+py-modules = ["gclone"]

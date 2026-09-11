@@ -2,11 +2,14 @@
 
 import argparse
 import getpass
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 
@@ -146,6 +149,88 @@ def get_github_username():
 
 def get_github_token():
     return keychain_get("token")
+
+def verify_github_token():
+    username = get_github_username()
+    token = get_github_token()
+
+    print()
+    print(f"{Colors.CYAN}{Colors.BOLD}🔐 GitHub Authentication Verification{Colors.RESET}")
+    print("────────────────────────────────────────")
+    print()
+
+    if not username or not token:
+        error("GitHub credential belum tersedia.")
+        print()
+        info("Jalankan:")
+        print("  gclone auth")
+        print()
+        return False
+
+    success("Credential ditemukan.")
+    print(f"  Username : {username}")
+    print("  Token    : ********")
+    print()
+
+    info("Menghubungi GitHub API...")
+
+    request = urllib.request.Request(
+        "https://api.github.com/user",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "gclone",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        github_login = data.get("login")
+
+        print()
+        success("GitHub authentication valid.")
+        print(f"  GitHub account : {github_login}")
+
+        if github_login and github_login.lower() != username.lower():
+            warning(
+                f"Username Keychain ({username}) berbeda "
+                f"dengan account GitHub ({github_login})."
+            )
+
+        print()
+        return True
+
+    except urllib.error.HTTPError as exc:
+        print()
+
+        if exc.code == 401:
+            error("GitHub authentication tidak valid.")
+            warning("Token mungkin expired, revoked, atau invalid.")
+        elif exc.code == 403:
+            error("GitHub menolak request.")
+            warning("Periksa permission atau rate limit GitHub.")
+        else:
+            error(f"GitHub API error: HTTP {exc.code}")
+
+        print()
+        return False
+
+    except urllib.error.URLError as exc:
+        print()
+        error("Tidak dapat terhubung ke GitHub.")
+        warning(f"Network error: {exc.reason}")
+        print()
+        return False
+
+    except Exception as exc:
+        print()
+        error("Gagal melakukan verifikasi GitHub.")
+        warning(str(exc))
+        print()
+        return False
 
 
 def auth_status():
@@ -416,6 +501,7 @@ def show_help():
     print("  gclone clone <owner/repository>")
     print("  gclone auth")
     print("  gclone auth --status")
+    print("  gclone auth --verify")
     print("  gclone logout")
     print("  gclone help")
     print()
@@ -444,6 +530,7 @@ def main():
     parser.add_argument("repository", nargs="?")
     parser.add_argument("--dir", dest="directory")
     parser.add_argument("--status", action="store_true")
+    parser.add_argument("--verify", action="store_true")
     parser.add_argument("-h", "--help", action="store_true")
 
     args = parser.parse_args()
@@ -461,8 +548,14 @@ def main():
     if command == "auth":
         if args.status:
             auth_status()
+        elif args.verify:
+            success = verify_github_token()
+
+            if not success:
+                sys.exit(1)
         else:
             authenticate()
+
         return
 
     if command == "logout":
